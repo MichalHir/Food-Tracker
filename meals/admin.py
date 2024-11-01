@@ -1,7 +1,6 @@
 from django.contrib import admin
-from foods.models import Food
-from meals.models import User
+from meals.models import Meal, User
 
 # Register your models here.
 admin.site.register(User)
-admin.site.register(Food)
+admin.site.register(Meal)
