@@ -1,7 +1,6 @@
 from rest_framework.decorators import api_view
 from django.shortcuts import render
 from rest_framework.response import Response
-import foods
 from foods.models import Food
 from foods.serializers import FoodSerializer
 
@@ -10,7 +9,7 @@ from foods.serializers import FoodSerializer
 
 def get_all_foods(request):
     print("USER IS:",request.user)
-    tasks = Food.objects
+    foods = Food.objects
     serializer = FoodSerializer(foods, many=True)
     return Response(serializer.data)
 

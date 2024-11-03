@@ -12,7 +12,9 @@
     - python manage.py runserver
 
 5. add some products in admin or shell and navigate to 'http://127.0.0.1:8000/products/' -->
-https://github.com/MichalHir/project1_foodTracker
+
+https://github.com/MichalHir/Food-Tracker
+https://github.com/MichalHir/Food-Tracker-Django
 
 Setup environment
 Create and activate a virtual environment:
@@ -48,9 +50,10 @@ git init
 git add README.md
 git commit -m "first commit"
 git branch -M main
-git remote add origin https://github.com/MichalHir/project1_foodTracker.git
+git remote add origin https://github.com/MichalHir/Food-Tracker.git
 git push -u origin main
 
 push an existing repository from the command line:
-git remote add origin https://github.com/MichalHir/project1_foodTracker.git
+git remote add origin https://github.com/MichalHir/Food-Tracker.git
+git branch -M main
 git push -u origin main
