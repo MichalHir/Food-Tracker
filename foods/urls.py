@@ -5,6 +5,5 @@ from foods import views
 
 urlpatterns = [
     path('foods/', views.get_all_foods, name="get_all_foods"),
-    # path('admin_tasks/', views.get_admin_tasks, name="get_admin_tasks"),
-    # path('register/', views.register, name="register"),
+    path('foods_list_search/', views.foods_list_search, name='foods_list_search'),
 ]
