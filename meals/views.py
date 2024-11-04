@@ -14,6 +14,15 @@ def get_all_meals(request):
     serializer = MealSerializer(meals, many=True)
     return Response(serializer.data)
 
+@api_view(['POST'])
+def add_meals(request):
+    #if request.method == 'POST':
+    serializer = MealSerializer(data=request.data)
+    if serializer.is_valid():
+        newMeal = serializer.save()
+        return Response(f'user is {newMeal.user} and time is {newMeal.time}')
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET', 'POST'])
 def meals_list_search(request):
     """
@@ -63,15 +72,39 @@ def register(request):
 #         return Response({"message": f"User {user.username} created successfully"}, status=status.HTTP_201_CREATED)
 #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def get_all_users(request):
+    users = User.objects
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def user_search(request):
+    """
+    List all  products, or create a new product.
+    """
+    if request.method == 'GET':
+        keyword = request.GET.get('keyword')
+        if keyword:
+            # Filter meals based on a keyword in user's name field
+            users = User.objects.filter(
+                name__icontains=keyword
+            ).distinct()
+        else:
+            users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        # adds user requires post
+    # elif request.method == 'POST':
+    #      serializer = MealSerializer(data=request.data)
+    #      if serializer.is_valid():
+    #          serializer.save()
+    #          return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-@api_view(['POST'])
-def add_meals(request):
-    #if request.method == 'POST':
-    serializer = MealSerializer(data=request.data)
-    if serializer.is_valid():
-        newMeal = serializer.save()
-        return Response(f'user is {newMeal.user} and time is {newMeal.time}')
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
       

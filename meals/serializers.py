@@ -7,7 +7,7 @@ from meals.models import Meal, User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'  # You can also specify fields explicitly if needed
+        fields = ['name', 'email', 'age', 'goal', 'isActive']  # You can also specify fields explicitly if needed
 
 class MealSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
