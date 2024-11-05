@@ -13,8 +13,9 @@
 
 5. add some products in admin or shell and navigate to 'http://127.0.0.1:8000/products/' -->
 
-https://github.com/MichalHir/Food-Tracker
+<!-- https://github.com/MichalHir/Food-Tracker -->
 https://github.com/MichalHir/Food-Tracker-Django
+https://github.com/ranerlich7/task_manager
 
 Setup environment
 Create and activate a virtual environment:

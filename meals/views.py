@@ -5,6 +5,8 @@ from foods.models import Food, Food_type
 from meals.models import Meal, User
 from meals.serializers import MealSerializer, UserSerializer
 from rest_framework import status
+from django.contrib.auth.hashers import make_password
+from django.db.models import Q
 
 # Create your views here.
 @api_view(['GET'])
@@ -32,9 +34,11 @@ def meals_list_search(request):
         keyword = request.GET.get('keyword')
         if keyword:
             # Filter meals based on a keyword in Food_type's name field
+            # meals = Meal.objects.filter(
+            #     # food_info__types__type__name__icontains=keyword  # Check if any Food linked to Meal has the name containing keyword
+            #     food_info__types__type__icontains=keyword)
             meals = Meal.objects.filter(
-                food_info__name__icontains=keyword  # Check if any Food linked to Meal has the name containing keyword
-            ).distinct()
+    Q(food_info__types__type__icontains=keyword) | Q(food_info__name__icontains=keyword))
         else:
             meals = Meal.objects.all()
         serializer = MealSerializer(meals, many=True)
@@ -57,7 +61,8 @@ def register(request):
         password=request.data['password']
         age=request.data['age']
         goal=request.data['goal']
-        newUser = User(name=name, email=email,age=age, goal=goal,password=password)       
+        hashed_password = make_password(password)
+        newUser = User(name=name, email=email,age=age, goal=goal,password=hashed_password)       
         newUser.is_active = True
         # newUser.set_password(password)  # Securely hash the password
         newUser.save()
@@ -72,6 +77,7 @@ def register(request):
 #         return Response({"message": f"User {user.username} created successfully"}, status=status.HTTP_201_CREATED)
 #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# @permission_classes([IsAdminUser]) instead of api_view
 @api_view(['GET'])
 def get_all_users(request):
     users = User.objects
@@ -87,9 +93,7 @@ def user_search(request):
         keyword = request.GET.get('keyword')
         if keyword:
             # Filter meals based on a keyword in user's name field
-            users = User.objects.filter(
-                name__icontains=keyword
-            ).distinct()
+            users = User.objects.filter(name__icontains=keyword).distinct()
         else:
             users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -102,8 +106,50 @@ def user_search(request):
     #          return Response(serializer.data, status=status.HTTP_201_CREATED)
     #      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PATCH'])
+def deactivate_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    # user.delete()
+    user.is_active = False
+    user.save()
+    # serializer = UserSerializer(user)
+    # return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(f'user is  id {user.name} id: {user.id} active={user.isActive}', status=status.HTTP_200_OK)
+
+@api_view(['PATCH'])
+def delete_meal(request, meal_id):
+    meal = get_object_or_404(Meal, id=meal_id)
+    meal.delete()
+    return Response(f'meal id {meal_id} is deleted')
+
+#gpt example:
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from rest_framework import status
+# from django.shortcuts import get_object_or_404
+# from .models import User
+# from .serializers import UserSerializer
 
 
+#  @api_view(['PATCH'])
+# def update_user_goal(request, user_id):
+#     """
+#     Update the 'goal' field of a user given their user ID.
+#     """
+#     # Fetch the user object or return a 404 if not found
+#     user = get_object_or_404(User, id=user_id)
+    
+#     # Check if 'goal' is in the request data
+#     if 'goal' not in request.data:
+#         return Response({"error": "Please provide the 'goal' field to update."}, status=status.HTTP_400_BAD_REQUEST)
+    
+#     # Update the 'goal' field
+#     user.goal = request.data['goal']
+#     user.save()
+    
+#     # Optional: Return the updated user data
+#     serializer = UserSerializer(user)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
