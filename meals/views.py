@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
-from foods.models import Food, Food_type
 from meals.models import Meal, User
 from meals.serializers import MealSerializer, UserSerializer
 from rest_framework import status

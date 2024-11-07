@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 from foods import views
-from foods.models import MealListView
 
 urlpatterns = [
     path('foods/', views.get_all_foods, name="get_all_foods"),

@@ -58,3 +58,10 @@ push an existing repository from the command line:
 git remote add origin https://github.com/MichalHir/Food-Tracker.git
 git branch -M main
 git push -u origin main
+
+
+
+for frontend
+# class MealListView(generics.ListAPIView):
+#     queryset = Meal.objects.all().select_related('user').prefetch_related('food_info__types')
+#     serializer_class = MealSerializer

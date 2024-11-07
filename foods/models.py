@@ -1,7 +1,4 @@
 from django.db import models
-from meals.models import Meal
-from meals.serializers import MealSerializer
-
 # Create your models here.
 class Food_type(models.Model):
     type = models.CharField(max_length=255)
