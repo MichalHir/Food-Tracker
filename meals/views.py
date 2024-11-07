@@ -1,3 +1,5 @@
+from datetime import datetime
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
@@ -151,6 +153,29 @@ def delete_meal(request, meal_id):
 #     serializer = UserSerializer(user)
 #     return Response(serializer.data, status=status.HTTP_200_OK)
 
+# for the frontend:
+@api_view(['GET'])
+def meals_by_date(request):
+    selected_date = request.GET.get('date')
 
+    # Validate date format
+    try:
+        selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+    except ValueError:
+        return JsonResponse({"error": "Invalid date format"}, status=400)
 
-      
+    # Filter meals by date
+    meals = Meal.objects.filter(date=selected_date)
+
+    # Prepare JSON response
+    meals_data = [
+        {
+            "time": meal.time.strftime("%H:%M"),
+            "foods": [food.name for food in meal.food_info.all()]
+        }
+        for meal in meals
+    ]
+    return JsonResponse({"meals": meals_data})
+
+def daily_meals_view(request):
+    return render(request, 'daily_meals.html')

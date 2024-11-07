@@ -1,4 +1,6 @@
 from django.db import models
+from meals.models import Meal
+from meals.serializers import MealSerializer
 
 # Create your models here.
 class Food_type(models.Model):
@@ -15,4 +17,5 @@ class Food(models.Model):
 
     def __str__(self):
         return self.name
+    
 

@@ -1,6 +1,6 @@
 from django.db import models
-
 from foods.models import Food
+# from meals.serializers import MealSerializer
 
 # Create your models here.
 class User(models.Model):
@@ -22,3 +22,8 @@ class Meal(models.Model):
 
     def __str__(self):
         return f"{self.time} - {self.food_info}"
+    
+# for frontend
+# class MealListView(generics.ListAPIView):
+#     queryset = Meal.objects.all().select_related('user').prefetch_related('food_info__types')
+#     serializer_class = MealSerializer

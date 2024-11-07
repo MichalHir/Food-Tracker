@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meals by Date</title>
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .filter-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .meals-list {
+            list-style: none;
+            padding: 0;
+        }
+        .meal-item {
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Meals by Date</h1>
+        <p>Select a date to see all meals for that day</p>
+    </div>
+
+    <div class="filter-section">
+        <label for="dateSelect">Select Date:</label>
+        <input type="date" id="dateSelect" />
+        <button onclick="fetchMealsByDate()">Show Meals</button>
+    </div>
+
+    <ul class="meals-list" id="mealsList">
+        <!-- Meals will be populated here dynamically -->
+    </ul>
+</div>
+
+<script>
+    // Function to fetch and display meals based on selected date using Axios
+    function fetchMealsByDate() {
+    const selectedDate = document.getElementById("dateSelect").value;  // Declare and assign selectedDate first
+    const mealsList = document.getElementById("mealsList");
+
+    console.log("fetchMealsByDate function called");  // Debugging line
+    console.log("Selected Date:", selectedDate);      // Debugging line
+
+    // Clear previous results
+    mealsList.innerHTML = '';
+
+    // Fetch meals from backend for the selected date
+    axios.get(`/api/meals_by_date/?date=${selectedDate}`)
+        .then(response => {
+            const meals = response.data.meals;
+            if (meals.length === 0) {
+                mealsList.innerHTML = '<p>No meals found for this date.</p>';
+            } else {
+                meals.forEach(meal => {
+                    const mealItem = document.createElement("li");
+                    mealItem.classList.add("meal-item");
+                    mealItem.innerHTML = `
+                        <h3>Time: ${meal.time}</h3>
+                        <ul>${meal.foods.map(food => `<li>${food}</li>`).join('')}</ul>
+                    `;
+                    mealsList.appendChild(mealItem);
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching meals:", error.response ? error.response.data : error.message);
+            mealsList.innerHTML = '<p>There was an error fetching meals.</p>';
+        });
+}
+
+
+</script>
+
+</body>
+</html>
