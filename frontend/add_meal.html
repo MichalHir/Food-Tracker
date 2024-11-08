@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Meal</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Add a Meal</h1>
+    <form id="mealForm">
+        <!-- User selection dropdown -->
+        <label for="user">MyUser:</label>
+        <select id="user" name="user" required>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <br><br>
+
+        <!-- Date input -->
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+        <br><br>
+
+        <!-- Time input -->
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time" required>
+        <br><br>
+
+        <!-- Food selection -->
+        <label for="foods">Select Foods:</label>
+        <select id="foods" name="foods" multiple required>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <br><br>
+
+        <button type="submit">Add Meal</button>
+    </form>
+
+    <script>
+        // Function to populate user and food options
+        async function populateOptions() {
+            try {
+                // Fetch users
+                const usersResponse = await axios.get('/users/');  // Endpoint for fetching users
+                const userSelect = document.getElementById('user');
+                usersResponse.data.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.textContent = user.name;
+                    userSelect.appendChild(option);
+                });
+
+                // Fetch foods
+                const foodsResponse = await axios.get('/foods/');  // Endpoint for fetching foods
+                const foodsSelect = document.getElementById('foods');
+                foodsResponse.data.forEach(food => {
+                    const option = document.createElement('option');
+                    option.value = food.id;
+                    option.textContent = food.name;
+                    foodsSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading options:', error);
+            }
+        }
+
+        // Call the function to populate options on page load
+        window.onload = populateOptions;
+
+        // Form submit handler
+        document.getElementById('mealForm').addEventListener('submit', async function(event) {
+            event.preventDefault();  // Prevent form from reloading page
+
+            // Get values from the form
+            const user = document.getElementById('user').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const foods = Array.from(document.getElementById('foods').selectedOptions).map(option => option.value);
+
+            // Create meal data object
+            const mealData = {
+                user,
+                date,
+                time,
+                food_info: foods
+            };
+
+            try {
+                // Send POST request to add meal
+                const response = await axios.post('/add_meals/', mealData);
+                alert('Meal added successfully!');
+            } catch (error) {
+                console.error('Error adding meal:', error);
+                alert('Failed to add meal');
+            }
+        });
+    </script>
+</body>
+</html>

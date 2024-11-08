@@ -65,3 +65,5 @@ for frontend
 # class MealListView(generics.ListAPIView):
 #     queryset = Meal.objects.all().select_related('user').prefetch_related('food_info__types')
 #     serializer_class = MealSerializer
+
+Bj{p@"y9)atS4#GYE2/~L3

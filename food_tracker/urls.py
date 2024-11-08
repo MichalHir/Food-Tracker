@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('foods.urls')),
     path('', include('meals.urls')),
+    path('api/', include('meals.urls')),  # frontend: Prefixes with /api/
+    
 ]

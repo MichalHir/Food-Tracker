@@ -73,7 +73,7 @@
     mealsList.innerHTML = '';
 
     // Fetch meals from backend for the selected date
-    axios.get(`/api/meals_by_date/?date=${selectedDate}`)
+    axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`)
         .then(response => {
             const meals = response.data.meals;
             if (meals.length === 0) {

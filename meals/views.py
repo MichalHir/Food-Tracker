@@ -3,11 +3,16 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
-from meals.models import Meal, User
-from meals.serializers import MealSerializer, UserSerializer
+from meals.models import Meal
+from meals.serializers import MealSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
+from rest_framework import generics
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate
+
+from users.models import MyUser
 
 # Create your views here.
 @api_view(['GET'])
@@ -53,22 +58,22 @@ def meals_list_search(request):
          return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-def register(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        name=request.data['name']
-        email=request.data['email']
-        password=request.data['password']
-        age=request.data['age']
-        goal=request.data['goal']
-        hashed_password = make_password(password)
-        newUser = User(name=name, email=email,age=age, goal=goal,password=hashed_password)       
-        newUser.is_active = True
-        # newUser.set_password(password)  # Securely hash the password
-        newUser.save()
-        return Response(f'username is {newUser.name}')
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST']) - move to admin
+# def register(request):
+#     serializer = UserSerializer(data=request.data)
+#     if serializer.is_valid():
+#         name=request.data['name']
+#         email=request.data['email']
+#         password=request.data['password']
+#         age=request.data['age']
+#         goal=request.data['goal']
+#         hashed_password = make_password(password)
+#         newUser = User(name=name, email=email,age=age, goal=goal,password=hashed_password)       
+#         newUser.is_active = True
+#         # newUser.set_password(password)  # Securely hash the password
+#         newUser.save()
+#         return Response(f'username is {newUser.name}')
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 # or:
 # @api_view(['POST'])
 # def add_user(request):
@@ -79,26 +84,26 @@ def register(request):
 #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # @permission_classes([IsAdminUser]) instead of api_view
-@api_view(['GET'])
-def get_all_users(request):
-    users = User.objects
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+# @api_view(['GET']) - move to admin
+# def get_all_users(request):
+#     users = User.objects
+#     serializer = UserSerializer(users, many=True)
+#     return Response(serializer.data)
 
-@api_view(['GET'])
-def user_search(request):
-    """
-    List all  products, or create a new product.
-    """
-    if request.method == 'GET':
-        keyword = request.GET.get('keyword')
-        if keyword:
-            # Filter meals based on a keyword in user's name field
-            users = User.objects.filter(name__icontains=keyword).distinct()
-        else:
-            users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+# @api_view(['GET']) - move to admin
+# def user_search(request):
+#     """
+#     List all  products, or create a new product.
+#     """
+#     if request.method == 'GET':
+#         keyword = request.GET.get('keyword')
+#         if keyword:
+#             # Filter meals based on a keyword in user's name field
+#             users = User.objects.filter(name__icontains=keyword).distinct()
+#         else:
+#             users = User.objects.all()
+#         serializer = UserSerializer(users, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
         # adds user requires post
     # elif request.method == 'POST':
     #      serializer = MealSerializer(data=request.data)
@@ -117,7 +122,7 @@ def deactivate_user(request, user_id):
     # return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(f'user is  id {user.name} id: {user.id} active={user.isActive}', status=status.HTTP_200_OK)
 
-@api_view(['PATCH'])
+@api_view(['PATCH']) #go back to it
 def delete_meal(request, meal_id):
     meal = get_object_or_404(Meal, id=meal_id)
     meal.delete()
@@ -152,29 +157,50 @@ def delete_meal(request, meal_id):
 #     serializer = UserSerializer(user)
 #     return Response(serializer.data, status=status.HTTP_200_OK)
 
-# for the frontend:
-@api_view(['GET'])
+# for the frontend meals display:
 def meals_by_date(request):
-    selected_date = request.GET.get('date')
+    date = request.GET.get('date')
+    if date:
+        # Retrieve meals filtered by the specified date
+        meals = Meal.objects.filter(date=date).prefetch_related('food_info')
+        
+        # Format the meals data to include associated foods
+        formatted_meals = []
+        for meal in meals:
+            foods = [food.name for food in meal.food_info.all()]  # Get the list of food names for each meal
+            formatted_meals.append({
+                'time': meal.time.strftime('%H:%M'),  # Format time as needed
+                'foods': foods
+            })
 
-    # Validate date format
+        # Prepare the response data
+        response_data = {'meals': formatted_meals}
+        return JsonResponse(response_data)
+    else:
+        return JsonResponse({'error': 'Date parameter is required'}, status=400)
+class daily_meals_view(generics.ListAPIView):
+    queryset = Meal.objects.all().select_related('user').prefetch_related('food_info__types')
+    serializer_class = MealSerializer
+
+    # for login
+@api_view(['POST'])
+def login_view(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+
     try:
-        selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
-    except ValueError:
-        return JsonResponse({"error": "Invalid date format"}, status=400)
+        # Attempt to retrieve the user by email
+        user = MyUser.objects.get(email=email)
+        username = user.username  # Get the username associated with this email
+    except MyUser.DoesNotExist:
+        return Response({"success": False, "message": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # Authenticate using the username (since authenticate requires username, not email)
+    user = authenticate(request, username=username, password=password)
 
-    # Filter meals by date
-    meals = Meal.objects.filter(date=selected_date)
-
-    # Prepare JSON response
-    meals_data = [
-        {
-            "time": meal.time.strftime("%H:%M"),
-            "foods": [food.name for food in meal.food_info.all()]
-        }
-        for meal in meals
-    ]
-    return JsonResponse({"meals": meals_data})
-
-def daily_meals_view(request):
-    return render(request, 'daily_meals.html')
+    if user is not None:
+        # Successful authentication
+        return Response({"success": True, "message": "Login successful"}, status=status.HTTP_200_OK)
+    else:
+        # Failed authentication
+        return Response({"success": False, "message": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
