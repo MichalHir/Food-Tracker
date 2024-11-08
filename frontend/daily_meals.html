@@ -59,7 +59,7 @@
         <!-- Meals will be populated here dynamically -->
     </ul>
 </div>
-
+<button type="button" id="addMealButton">Add A Meal</button>
 <script>
     // Function to fetch and display meals based on selected date using Axios
     function fetchMealsByDate() {
@@ -94,9 +94,10 @@
             console.error("Error fetching meals:", error.response ? error.response.data : error.message);
             mealsList.innerHTML = '<p>There was an error fetching meals.</p>';
         });
-        // window.location.href = "http://127.0.0.1:5500/frontend/add_meal.html";
-}
-
+    }
+    document.getElementById('addMealButton').addEventListener('click', function() {
+    window.location.href = 'http://127.0.0.1:5500/frontend/add_meal.html';
+});
 
 </script>
 

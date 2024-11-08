@@ -34,6 +34,7 @@
         <br><br>
 
         <button type="submit">Add Meal</button>
+        <button type="button" id="backButton">Back</button>
     </form>
 
     <script>
@@ -87,13 +88,16 @@
 
             try {
                 // Send POST request to add meal
-                const response = await axios.post('/add_meals/', mealData);
+                const response = await axios.post('http://127.0.0.1:8000/add_meals/', mealData);
                 alert('Meal added successfully!');
             } catch (error) {
                 console.error('Error adding meal:', error);
                 alert('Failed to add meal');
             }
         });
+        document.getElementById('backButton').addEventListener('click', function() {
+    window.location.href = 'http://127.0.0.1:5500/frontend/daily_meals.html';
+});
     </script>
 </body>
 </html>
