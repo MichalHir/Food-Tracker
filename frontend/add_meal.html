@@ -41,17 +41,17 @@
         async function populateOptions() {
             try {
                 // Fetch users
-                const usersResponse = await axios.get('/users/');  // Endpoint for fetching users
+                const usersResponse = await axios.get('http://127.0.0.1:8000/api/users/');
                 const userSelect = document.getElementById('user');
                 usersResponse.data.forEach(user => {
                     const option = document.createElement('option');
                     option.value = user.id;
-                    option.textContent = user.name;
+                    option.textContent = user.username;  // Use 'username' instead of 'name'
                     userSelect.appendChild(option);
                 });
 
                 // Fetch foods
-                const foodsResponse = await axios.get('/foods/');  // Endpoint for fetching foods
+                const foodsResponse = await axios.get('http://127.0.0.1:8000/api/foods/');  // Endpoint for fetching foods - ceate one
                 const foodsSelect = document.getElementById('foods');
                 foodsResponse.data.forEach(food => {
                     const option = document.createElement('option');

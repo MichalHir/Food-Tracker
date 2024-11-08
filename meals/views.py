@@ -11,6 +11,9 @@ from django.db.models import Q
 from rest_framework import generics
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
+from foods.models import Food,Food_type
+from django.contrib.auth import get_user_model
+import json
 
 from users.models import MyUser
 
@@ -204,3 +207,44 @@ def login_view(request):
     else:
         # Failed authentication
         return Response({"success": False, "message": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    # for add meal
+def food_list(request):
+    foods = Food.objects.all()
+    food_data = []
+    for food in foods:
+        food_types = food.types.values_list('type', flat=True)  # Get names of related Food_types
+        food_data.append({
+            'id': food.id,
+            'name': food.name,
+            'types': list(food_types),  # Include types for each food
+        })
+    return JsonResponse(food_data, safe=False)
+def food_type_list(request):
+    food_types = Food_type.objects.all().values('id', 'type')
+    return JsonResponse(list(food_types), safe=False)
+
+MyUser = get_user_model()
+
+@csrf_exempt
+def add_meal(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        user_id = data.get('user')
+        date = data.get('date')
+        time = data.get('time')
+        food_ids = data.get('food_info', [])
+
+        try:
+            user = MyUser.objects.get(id=user_id)
+            meal = Meal.objects.create(user=user, date=date, time=time)
+            foods = Food.objects.filter(id__in=food_ids)
+            meal.food_info.set(foods)  # Link the selected foods to the meal
+            meal.save()
+            return JsonResponse({'status': 'success', 'message': 'Meal added successfully!'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        
+def user_list(request):
+    users = MyUser.objects.all().values('id', 'username')  # Ensure username is correct attribute
+    return JsonResponse(list(users), safe=False)
