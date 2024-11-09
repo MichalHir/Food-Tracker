@@ -14,8 +14,8 @@ from django.contrib.auth import authenticate
 from foods.models import Food,Food_type
 from django.contrib.auth import get_user_model
 import json
-
 from users.models import MyUser
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 @api_view(['GET'])
@@ -117,7 +117,7 @@ def meals_list_search(request):
 
 @api_view(['PATCH'])
 def deactivate_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+    user = get_object_or_404(MyUser, id=user_id)
     # user.delete()
     user.is_active = False
     user.save()
@@ -165,22 +165,23 @@ def meals_by_date(request):
     date = request.GET.get('date')
     if date:
         # Retrieve meals filtered by the specified date
-        meals = Meal.objects.filter(date=date).prefetch_related('food_info')
-        
-        # Format the meals data to include associated foods
+        # meals = Meal.objects.filter(date=date).prefetch_related('food_info')
+        meals = Meal.objects.filter(date=date).prefetch_related('food_info')    # Format the meals data to include associated foods
         formatted_meals = []
         for meal in meals:
-            foods = [food.name for food in meal.food_info.all()]  # Get the list of food names for each meal
+            foods = [food.name for food in meal.food_info.all()]  # Get the list of food names for each meal                
             formatted_meals.append({
-                'time': meal.time.strftime('%H:%M'),  # Format time as needed
-                'foods': foods
-            })
+            'time': meal.time.strftime('%H:%M'),  # Format time as needed
+            'foods': foods
+        })
 
-        # Prepare the response data
+         # Prepare the response data
         response_data = {'meals': formatted_meals}
         return JsonResponse(response_data)
     else:
         return JsonResponse({'error': 'Date parameter is required'}, status=400)
+   
+    
 class daily_meals_view(generics.ListAPIView):
     queryset = Meal.objects.all().select_related('user').prefetch_related('food_info__types')
     serializer_class = MealSerializer
