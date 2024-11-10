@@ -61,6 +61,34 @@
 </div>
 <button type="button" id="addMealButton">Add A Meal</button>
 <script>
+    function refreshToken() {
+    const refresh_token = localStorage.getItem('refresh_token');
+    
+    return axios.post('http://127.0.0.1:8000/api/token/refresh/', { refresh: refresh_token })
+        .then(response => {
+            // Update the access token in localStorage
+            localStorage.setItem('access_token', response.data.access);
+            return response.data.access;
+        })
+        .catch(error => {
+            console.error("Error refreshing token:", error);
+            // If the refresh token has expired, redirect to login
+            window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+        });
+}
+    function isTokenExpired(token) {
+        if (!token) return true;  // No token, so it’s treated as expired
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));  // Decode JWT payload
+            const currentTime = Math.floor(Date.now() / 1000);  // Current time in seconds
+            return payload.exp < currentTime;  // True if expired, false if valid
+        } catch (e) {
+            console.error("Failed to decode token:", e);
+            return true;  // Assume expired if decoding fails
+        }
+    }
+
     // Function to fetch and display meals based on selected date using Axios
     function fetchMealsByDate() {
     const selectedDate = document.getElementById("dateSelect").value;  // Declare and assign selectedDate first
@@ -68,13 +96,20 @@
 
     console.log("fetchMealsByDate function called");  // Debugging line
     console.log("Selected Date:", selectedDate);      // Debugging line
-
+    const token = localStorage.getItem('access_token');  // jwt 
     // Clear previous results
     mealsList.innerHTML = '';
-
+    // Check if token exists and is valid
+    if (!token || isTokenExpired(token)) {
+        console.log("Token is missing or expired. Redirecting to login.");
+        window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+        return;  // Stop function execution if token is invalid
+    }    
     // Fetch meals from backend for the selected date
-    
-    axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`)
+    // axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`)
+    axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
         .then(response => {
             const meals = response.data.meals;
             if (meals.length === 0) {
@@ -92,8 +127,14 @@
             }
         })
         .catch(error => {
-            console.error("Error fetching meals:", error.response ? error.response.data : error.message);
-            mealsList.innerHTML = '<p>There was an error fetching meals.</p>';
+            // console.error("Error fetching meals:", error.response ? error.response.data : error.message);
+            // mealsList.innerHTML = '<p>There was an error fetching meals.</p>';
+        if (error.response && error.response.status === 401) {
+            // Handle token expiration or unauthorized access, possibly redirect to login
+            window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+        } else {
+            console.error("Error fetching meals:", error);
+        }
         });
     }
     document.getElementById('addMealButton').addEventListener('click', function() {

@@ -67,3 +67,8 @@ for frontend
 #     serializer_class = MealSerializer
 
 Bj{p@"y9)atS4#GYE2/~L3
+myUser_1234
+myUser_1234@gmail.com
+iCaG2UdK96sqW.-
+
+Access Restriction: All views are restricted to admins using @permission_classes([IsAdminUser]).
