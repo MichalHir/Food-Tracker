@@ -31,8 +31,8 @@ def register(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])  # Only allow access to admin users
-# @permission_classes([AllowAny])
+# @permission_classes([IsAdminUser])  # Only allow access to admin users
+@permission_classes([AllowAny])
 def get_all_users(request):
     users = MyUser.objects.all()  # Retrieve all users
     serializer = MyUserSerializer(users, many=True)  # Serialize the list of users
@@ -49,7 +49,7 @@ def user_search(request):
         keyword = request.GET.get('keyword')
         if keyword:
             # Filter meals based on a keyword in user's name field
-            users = MyUser.objects.filter(name__icontains=keyword).distinct()
+            users = MyUser.objects.filter(username__icontains=keyword).distinct()
         else:
             users = MyUser.objects.all()
         serializer = MyUserSerializer(users, many=True)

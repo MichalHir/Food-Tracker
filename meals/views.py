@@ -20,6 +20,7 @@ from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def get_all_meals(request):
     print("USER IS:", request.user)
     meals = Meal.objects
@@ -28,6 +29,7 @@ def get_all_meals(request):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def add_meals(request):
     # if request.method == 'POST':
     serializer = MealSerializer(data=request.data)
@@ -38,6 +40,7 @@ def add_meals(request):
 
 
 @api_view(["GET", "POST"])
+@permission_classes([AllowAny])
 def meals_list_search(request):
     """
     List all  products, or create a new product.
@@ -50,7 +53,7 @@ def meals_list_search(request):
             #     # food_info__types__type__name__icontains=keyword  # Check if any Food linked to Meal has the name containing keyword
             #     food_info__types__type__icontains=keyword)
             meals = Meal.objects.filter(
-                Q(food_info__types__type__icontains=keyword)
+                Q(food_info__types__type=keyword)
                 | Q(food_info__name__icontains=keyword)
             )
         else:

@@ -1,13 +1,14 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import render
 from rest_framework.response import Response
 from foods.models import Food, Food_type
 from foods.serializers import FoodSerializer
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 
 # Create your views here.
 @api_view(['GET'])
-
+@permission_classes([AllowAny])
 def get_all_foods(request):
     print("USER IS:",request.user)
     foods = Food.objects
@@ -16,6 +17,7 @@ def get_all_foods(request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def foods_list_search(request):
     """
     List all  products, or create a new product.
