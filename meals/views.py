@@ -270,7 +270,9 @@ def add_meal(request):
 
     try:
         user = MyUser.objects.get(id=user_id)
+        print("User found:", user)
         meals = Meal.objects.create(user=user, date=date, time=time)
+        print("Meal created with ID:", meals.id)
         # Retrieve and link food items to the meal
         foods = Food.objects.filter(id__in=food_info)
         if not foods.exists():

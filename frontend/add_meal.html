@@ -9,128 +9,94 @@
 <body>
     <h1>Add a Meal</h1>
     <form id="mealForm">
-        <!-- User selection dropdown -->
-        <label for="user">MyUser:</label>
-        <select id="user" name="user" required>
-            <!-- Options will be populated dynamically -->
-        </select>
-        <br><br>
-
-        <!-- Date input -->
         <label for="date">Date:</label>
         <input type="date" id="date" name="date" required>
         <br><br>
 
-        <!-- Time input -->
         <label for="time">Time:</label>
         <input type="time" id="time" name="time" required>
         <br><br>
 
-        <!-- Food selection -->
         <label for="foods">Select Foods:</label>
-        <select id="foods" name="foods" multiple required>
-            <!-- Options will be populated dynamically -->
-        </select>
+        <select id="foods" name="foods" multiple required></select>
         <br><br>
 
-        <!-- <button type="submit" id="add_meal">Add Meal</button> -->
-         <button onclick="add_meal()">Add Meal</button>
+        <button type="button" onclick="add_meal()">Add Meal</button>
         <button type="button" id="backButton">Back</button>
-        
     </form>
 
     <script>
-    function isTokenExpired(token) {
-    if (!token) return true;
-    const payload = JSON.parse(atob(token.split('.')[1]));  // Decode JWT payload
-    const currentTime = Math.floor(Date.now() / 1000);      // Current time in seconds
-    return payload.exp < currentTime;                       // True if expired
-}
-    async function refreshToken() {
-        const refresh_token = localStorage.getItem('refresh_token');
-        
-        return axios.post('http://127.0.0.1:8000/api/token/refresh/', { refresh: refresh_token })
-            .then(response => {
-                // Update the access token in localStorage
-                localStorage.setItem('access_token', response.data.access);
-                return response.data.access;
-            })
-            .catch(error => {
-                console.error("Error refreshing token:", error);
-                // If the refresh token has expired, redirect to login
-                window.location.href = "http://127.0.0.1:5500/frontend/login.html";
-            });
-    }
-    
-    // Function to handle token expiration
-    // async function handleTokenExpiration() {
-    //     try {
-    //         const newToken = await refreshToken();  // Refresh token and update local storage
-    //         axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;  // Update default Authorization header
-    //     } catch (error) {
-    //         console.error("Failed to refresh token:", error);
-    //         // Redirect to login page if token refresh fails
-    //         window.location.href = "http://127.0.0.1:5500/frontend/login.html";
-    //     }
-    // }
-   
-    // function to populate user and food options
-    async function populateOptions() {
-        const token = localStorage.getItem('access_token');
-        if (!token || isTokenExpired(token)) {
-            console.log("Token is missing or expired. Redirecting to login.");
-        window.location.href = "http://127.0.0.1:5500/frontend/login.html";
-        return;  // Stop function execution if token is invalid
+        function isTokenExpired(token) {
+            if (!token) return true;
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Math.floor(Date.now() / 1000);
+            return payload.exp < currentTime;
         }
-        try {
-             // Fetch users
-                const usersResponse = await axios.get('http://127.0.0.1:8000/api/users/');
-                const userSelect = document.getElementById('user');
-                usersResponse.data.forEach(user => {
-                    const option = document.createElement('option');
-                    option.value = user.id;
-                    option.textContent = user.username;  // Use 'username' instead of 'name'
-                    userSelect.appendChild(option);
-            });
 
-            const foodsResponse = await axios.get('http://127.0.0.1:8000/api/foods/', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const foodsSelect = document.getElementById('foods');
-            foodsResponse.data.forEach(food => {
-                const option = document.createElement('option');
-                option.value = food.id;
-                option.textContent = food.name;
-                foodsSelect.appendChild(option);
-            });
-        } catch (error) {
-            if (error.response && error.response.status === 401) {
-                await handleTokenExpiration();
-                populateOptions();
-            } else {
-                console.error('Error loading options:', error);
+        async function refreshToken() {
+            const refresh_token = localStorage.getItem('refresh_token');
+            return axios.post('http://127.0.0.1:8000/api/token/refresh/', { refresh: refresh_token })
+                .then(response => {
+                    localStorage.setItem('access_token', response.data.access);
+                    return response.data.access;
+                })
+                .catch(error => {
+                    window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+                });
+        }
+
+        function getUserIdFromToken() {
+            const token = localStorage.getItem('access_token');
+            if (!token || isTokenExpired(token)) {
+                window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+                return null;
+            }
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.user_id || payload.id;
+        }
+
+        async function populateOptions() {
+            const token = localStorage.getItem('access_token');
+            if (!token || isTokenExpired(token)) {
+                window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+                return;
+            }
+            try {
+                const foodsResponse = await axios.get('http://127.0.0.1:8000/api/foods/', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const foodsSelect = document.getElementById('foods');
+                foodsResponse.data.forEach(food => {
+                    const option = document.createElement('option');
+                    option.value = food.id;
+                    option.textContent = food.name;
+                    foodsSelect.appendChild(option);
+                });
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    await refreshToken();
+                    populateOptions();
+                } else {
+                    console.error('Error loading options:', error);
+                }
             }
         }
-    }
 
-    window.onload = populateOptions;
+        window.onload = populateOptions;
 
-    document.getElementById('mealForm').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        async function add_meal(){
-            const user = parseInt(document.getElementById('user').value, 10);
+        async function add_meal() {
+            const user = getUserIdFromToken();
+            if (!user) {
+                alert("User not authenticated.");
+                return;
+            }
+
             const date = document.getElementById('date').value;
             const time = document.getElementById('time').value;
             const food_info = Array.from(document.getElementById('foods').selectedOptions).map(option => parseInt(option.value, 10));
 
             const mealData = { user, date, time, food_info };
-            // DUBUGGING:
-            // console.log("User ID:", user);
-            // console.log("Date:", date);
-            //console.log("Time:", time);
-            //console.log("Food Info (should be integers):", food_info);
 
-            
             const token = localStorage.getItem('access_token');
             
             try {
@@ -140,25 +106,21 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                // console.log("added in fronend");
                 alert('Meal added successfully!');
             } catch (error) {
                 if (error.response && error.response.status === 401) {
-                    await handleTokenExpiration();
-                    document.getElementById('mealForm').dispatchEvent(new Event('submit'));
+                    await refreshToken();
+                    add_meal();
                 } else {
                     console.error("Error adding meal:", error.response ? error.response.data : error.message);
                     alert("Failed to add meal.");
                 }
             }
         }
-        await add_meal();
-        
-        });
+
         document.getElementById('backButton').addEventListener('click', function() {
             window.location.href = 'http://127.0.0.1:5500/frontend/daily_meals.html';
-});
+        });
     </script>
 </body>
 </html>
-    

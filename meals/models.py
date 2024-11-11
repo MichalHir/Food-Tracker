@@ -8,8 +8,8 @@ from users.models import MyUser
 
 class Meal(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.DO_NOTHING, related_name='user',null=True)
-    date=models.DateField(auto_now_add=True)
-    time=models.TimeField(auto_now=True)
+    date=models.DateField()
+    time=models.TimeField()
     food_info = models.ManyToManyField(Food, related_name='meals')  # Many-to-Many relationship with Food
 
     def __str__(self):
