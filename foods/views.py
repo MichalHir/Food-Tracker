@@ -15,12 +15,6 @@ def get_all_foods(request):
     return Response(serializer.data)
 
 
-# def get_admin_tasks(request):
-#     print("USER IS:",request.user)
-#     tasks = Task.objects.all()
-#     serializer = TaskSerializer(tasks, many=True)
-#     return Response(serializer.data)
-
 @api_view(['GET', 'POST'])
 def foods_list_search(request):
     """

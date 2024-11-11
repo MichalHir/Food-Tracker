@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
@@ -13,8 +14,8 @@ from foods.models import Food, Food_type
 from django.contrib.auth import get_user_model
 from users.models import MyUser
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
@@ -73,24 +74,38 @@ def meals_list_search(request):
 
 
 # for the frontend meals display:
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Ensure this view requires authentication
 def meals_by_date(request):
     date = request.GET.get("date")
+    username = request.user.id  # Access the authenticated user's ID
+    print("request:", request)
+    print("user id:", username)
     if date:
         # Retrieve meals filtered by the specified date
         # meals = Meal.objects.filter(date=date).prefetch_related('food_info')
+        # meals = Meal.objects.filter(date=date).prefetch_related(
+        #     "food_info"
+        # )  # Format the meals data to include associated foods
         meals = Meal.objects.filter(date=date).prefetch_related(
             "food_info"
-        )  # Format the meals data to include associated foods
+        )
+    
         formatted_meals = []
         for meal in meals:
+            username =meal.user.username
+            userID=meal.user.id
             foods = [
                 food.name for food in meal.food_info.all()
             ]  # Get the list of food names for each meal
-            formatted_meals.append(
-                {
-                    "time": meal.time.strftime("%H:%M"),  # Format time as needed
-                    "foods": foods,
-                }
+            if (userID==request.user.id):
+                formatted_meals.append(
+                    {
+                        "time": meal.time.strftime("%H:%M"),  # Format time as needed
+                        "foods": foods,
+                        "username": username,
+                        "userID":userID
+                    }
             )
 
         # Prepare the response data
@@ -100,11 +115,38 @@ def meals_by_date(request):
         return JsonResponse({"error": "Date parameter is required"}, status=400)
 
 
+# class daily_meals_view(generics.ListAPIView):
+#     queryset = (
+#         Meal.objects.all().select_related("user").prefetch_related("food_info__types")
+#     )
+#     serializer_class = MealSerializer
 class daily_meals_view(generics.ListAPIView):
-    queryset = (
-        Meal.objects.all().select_related("user").prefetch_related("food_info__types")
-    )
-    serializer_class = MealSerializer
+    # serializer_class = MealSerializer
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+
+    # def get_queryset(self):
+    #     # user = self.request.user
+    #     # date = self.request.query_params.get("date")
+
+    #     # # Filter meals by user and date, if date is provided
+    #     # queryset = Meal.objects.filter(user=user)
+    #     # if date:
+    #     #     queryset = queryset.filter(date=date)
+
+    #     # return queryset.prefetch_related("food_info__types")
+    #     return Meal.objects.filter(user=self.request.user)
+    def get(self, request):
+        print("request:",request)
+        # date = request.query_params.get('date')
+        date = request.GET.get('date')
+        # userID = request.user.id  # Access the user's ID from the token
+        # print(userID)
+        if date:
+            selected_date = datetime.strptime(date, '%Y-%m-%d').date()
+            meals = Meal.objects.filter(date=selected_date)
+            serializer = MealSerializer(meals, many=True)
+            return Response({"meals": serializer.data})
+        return Response({"meals": []})
 
     # for login
 
