@@ -77,16 +77,6 @@
         });
 }
     function isTokenExpired(token) {
-        // if (!token) return true;  // No token, so it’s treated as expired
-
-        // try {
-        //     const payload = JSON.parse(atob(token.split('.')[1]));  // Decode JWT payload
-        //     const currentTime = Math.floor(Date.now() / 1000);  // Current time in seconds
-        //     return payload.exp < currentTime;  // True if expired, false if valid
-        // } catch (e) {
-        //     console.error("Failed to decode token:", e);
-        //     return true;  // Assume expired if decoding fails
-        // }
         if (!token) return true;
         const payload = JSON.parse(atob(token.split('.')[1]));  // Decode JWT payload
         const currentTime = Math.floor(Date.now() / 1000);      // Current time in seconds
@@ -97,12 +87,7 @@
     function fetchMealsByDate() {
     const selectedDate = document.getElementById("dateSelect").value;  // Declare and assign selectedDate first
     const mealsList = document.getElementById("mealsList");
-
-    // console.log("fetchMealsByDate function called");  // Debugging line
-    // console.log("Selected Date:", selectedDate);      // Debugging line
-    
     const token = localStorage.getItem('access_token');
-    console.log("Access token1:"); // Debugging line// jwt 
     // Clear previous results
     mealsList.innerHTML = '';
     // Check if token exists and is valid
@@ -110,37 +95,36 @@
         console.log("Token is missing or expired. Redirecting to login.");
         window.location.href = "http://127.0.0.1:5500/frontend/login.html";
         return;  // Stop function execution if token is invalid
-    }
-    console.log("user",token.username) 
+    } 
     // Fetch meals from backend for the selected date
     axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     
-//     axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}&user=${userId}`, {
-//     headers: { 'Authorization': `Bearer ${token}` }
-// })
         .then(response => {
             const meals = response.data.meals;
             const userId = response.data.userId;
             if (meals.length === 0) {
                 mealsList.innerHTML = '<p>No meals found for this date.</p>';
             } else {
-                console.log(meals)
                 meals.forEach(meal => {
                     const mealItem = document.createElement("li");
                     mealItem.classList.add("meal-item");
-                    // console.log("user:", request.user.id);
                     mealItem.innerHTML = `
-                        <h3>Time: ${meal.time} User:${meal.username}</h3>
+                        <h3>Time: ${meal.time} User:${meal.username} </h3>
                         <ul>${meal.foods.map(food => `<li>${food}</li>`).join('')}</ul>
+                        <button class="delete-btn" data-meal-id="${meal.meal_id}">Delete</button>
                     `;
                     mealsList.appendChild(mealItem);
+                    // Add event listener for delete button
+                    const deleteButton = mealItem.querySelector(".delete-btn");
+                    deleteButton.addEventListener("click", () => {
+                        deleteMeal(meal.meal_id, selectedDate, token); // Call function to handle deletion
+                    });
                 });
             }
         })
         .catch(error => {
-            // console.error("Error fetching meals:", error.response ? error.response.data : error.message);
         if (error.response && error.response.status === 401) {
             // Handle token expiration or unauthorized access, possibly redirect to login
             window.location.href = "http://127.0.0.1:5500/frontend/login.html";
@@ -153,6 +137,64 @@
     document.getElementById('addMealButton').addEventListener('click', function() {
     window.location.href = 'http://127.0.0.1:5500/frontend/add_meal.html';
 });
+
+// Function to handle the deletion of a meal
+function deleteMeal(mealId, selectedDate, token) {
+    axios.delete(`http://127.0.0.1:8000/api/delete_meals/${mealId}/`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            // If the delete is successful, refresh the list of meals for the selected date
+            axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => 
+            {
+                // Assuming you have a function to render the meals
+                renderMeals(response.data);
+            })
+            .catch(error => {
+                console.error("Failed to retrieve meals for the selected date:", error);
+            });
+        } else {
+            console.error("Failed to delete meal");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+// Function to render meals, which you'll call after fetching meals by date
+function renderMeals(meals) {
+    const mealsList = document.getElementById("mealsList");
+    mealsList.innerHTML = ""; // Clear the existing list
+
+    meals.forEach(meal => {
+        const mealItem = document.createElement("li");
+        mealItem.classList.add("meal-item");
+
+        mealItem.innerHTML = `
+            <h3>Time: ${meal.time} User: ${meal.username}</h3>
+            <ul>${meal.foods.map(food => `<li>${food}</li>`).join('')}</ul>
+            <button class="delete-btn" data-meal-id="${meal.meal_id}">Delete</button>
+        `;
+
+        mealsList.appendChild(mealItem);
+
+        // Attach delete functionality to each delete button
+        const deleteButton = mealItem.querySelector(".delete-btn");
+        deleteButton.addEventListener("click", () => {
+            deleteMeal(meal.meal_Id, selectedDate, token);
+        });
+    });
+}
+
+    
+
 
 </script>
 

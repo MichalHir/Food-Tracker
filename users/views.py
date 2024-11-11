@@ -31,16 +31,14 @@ def register(request):
 
 
 @api_view(['GET'])
-# @permission_classes([IsAdminUser])  # Only allow access to admin users
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])  # Only allow access to admin users
 def get_all_users(request):
     users = MyUser.objects.all()  # Retrieve all users
     serializer = MyUserSerializer(users, many=True)  # Serialize the list of users
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-# @permission_classes([IsAdminUser])
-@permission_classes([AllowAny])
+@permission_classes([IsAdminUser])
 def user_search(request):
     """
     List all  products, or create a new product.
@@ -61,18 +59,3 @@ def user_search(request):
              return Response(serializer.data, status=status.HTTP_201_CREATED)
          return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# @api_view(['PATCH'])
-# def deactivate_user(request, user_id):
-#     user = get_object_or_404(MyUser, id=user_id)
-#     # user.delete()
-#     user.is_active = False
-#     user.save()
-#     # serializer = UserSerializer(user)
-#     # return Response(serializer.data, status=status.HTTP_200_OK)
-#     return Response(f'user is  id {user.name} id: {user.id} active={user.isActive}', status=status.HTTP_200_OK)
-
-
-
-# path(
-    #     "deactivate_user/<int:user_id>/", views.deactivate_user, name="deactivate_user"
-    # ),
