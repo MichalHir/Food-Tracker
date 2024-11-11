@@ -62,8 +62,6 @@ def meals_list_search(request):
 def meals_by_date(request):
     date = request.GET.get("date")
     username = request.user.id  # Access the authenticated user's ID
-    print("request:", request)
-    print("user id:", username)
     if date:
         meals = Meal.objects.filter(date=date).prefetch_related(
             "food_info"
