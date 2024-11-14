@@ -148,10 +148,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "users.MyUser"
 
-CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = [
-#     # Add the origin of your frontend
-# ]
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+   '*'  # Add the origin of your frontend
+]
 # jwt
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
