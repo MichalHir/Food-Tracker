@@ -1,4 +1,4 @@
-foodTracker app
+Food Tracker app
 track your meals with this app 
 
 First create and activate a virtual environment:
