@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+# render (add)
 import dj_database_url
 import os
 from dotenv import load_dotenv
 
-# Load .env file
+# Load .env file -render
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,12 +26,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# render
+# SECURITY WARNING: keep the secret key used in production secret!  
+# SECRET_KEY = 'django-insecure-kseeh(_9^qtpj4xeovrwikxy)98ebbel(#zwx6^%t^ne+q)jv2'
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+# render
+# ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ['food-tracker-django.onrender.com', 'localhost', '127.0.0.1']
 
 # Application definition
@@ -51,7 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+     'whitenoise.middleware.WhiteNoiseMiddleware',# render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -85,14 +89,24 @@ WSGI_APPLICATION = 'food_tracker.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# # Replace the SQLite DATABASES configuration with PostgreSQL:
+
+
+# render
+# # Replace the SQLite DATABASES configuration with PostgreSQL: 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default=os.getenv("DB_URL"),
-        conn_max_age=600
-    )
-}
+     'default': dj_database_url.config(
+         # Replace this value with your local database's connection string.
+         default=os.getenv("DB_URL"),
+         conn_max_age=600
+     )
+ }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -131,11 +145,9 @@ USE_TZ = True
 # STATIC_URL = 'static/' updete frontende:
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "static"),
-# ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# This production code might break development mode, so we check whether we're in DEBUG mode
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+# render (add)
+# This production code might break development mode, so we check whether we're in DEBUG mode 
 if not DEBUG:
     # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
