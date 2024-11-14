@@ -35,7 +35,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 # render
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['food-tracker-django.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['food-tracker-django.onrender.com', 'localhost', '127.0.0.1',]
 
 # Application definition
 
@@ -144,7 +144,8 @@ USE_TZ = True
 
 # STATIC_URL = 'static/' updete frontende:
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+# STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 # render (add)
 # This production code might break development mode, so we check whether we're in DEBUG mode 
