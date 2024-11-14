@@ -244,3 +244,6 @@ def add_meal(request):
 def user_list(request):
     users = MyUser.objects.all().values("id", "username")
     return Response(list(users))
+#  for render
+def home(request):
+    return render(request, 'daily_meals.html')  # Render the 'home.html' template
