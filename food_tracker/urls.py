@@ -17,9 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from meals.views import home  # Import the home view directly from meals/views.py
-
-import meals
 
 urlpatterns = [
     path('admin/', admin.site.urls),
