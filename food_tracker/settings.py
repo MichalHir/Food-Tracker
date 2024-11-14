@@ -12,14 +12,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 # render (add)
-import dj_database_url
-import os
-from dotenv import load_dotenv
+# import dj_database_url
+# import os
+# from dotenv import load_dotenv
 
-# Load .env file -render
-load_dotenv()
+# # Load .env file -render
+# load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -28,14 +28,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # render
 # SECURITY WARNING: keep the secret key used in production secret!  
-# SECRET_KEY = 'django-insecure-kseeh(_9^qtpj4xeovrwikxy)98ebbel(#zwx6^%t^ne+q)jv2'
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = 'django-insecure-kseeh(_9^qtpj4xeovrwikxy)98ebbel(#zwx6^%t^ne+q)jv2'
+# SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # render
-# ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['food-tracker-django.onrender.com', 'localhost', '127.0.0.1',]
+ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['food-tracker-django.onrender.com', 'localhost', '127.0.0.1',]
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5500",
+    'https://food-tracker-django.onrender.com',
+    #    Add the origin of your frontend
+]
+# render
+# CSRF_TRUSTED_ORIGINS=['https://food-tracker-django.onrender.com']
+# CSRF_COOKIE_SECURE = True
 
 # Application definition
 
@@ -93,19 +102,19 @@ WSGI_APPLICATION = 'food_tracker.wsgi.application'
 
 # render
 # # Replace the SQLite DATABASES configuration with PostgreSQL: 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
-     'default': dj_database_url.config(
-         # Replace this value with your local database's connection string.
-         default=os.getenv("DB_URL"),
-         conn_max_age=600
-     )
- }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+# DATABASES = {
+#      'default': dj_database_url.config(
+#          # Replace this value with your local database's connection string.
+#          default=os.getenv("DB_URL"),
+#          conn_max_age=600
+#      )
+#  }
 
 
 # Password validation
@@ -144,17 +153,17 @@ USE_TZ = True
 
 # STATIC_URL = 'static/' updete frontende:
 STATIC_URL = '/static/'
-# STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_DIRS = []
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
 # render (add)
 # This production code might break development mode, so we check whether we're in DEBUG mode 
-if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# if not DEBUG:
+#     # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+#     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#     # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+#     # and renames the files with unique names for each version to support long-term caching
+#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # Default primary key field type
@@ -164,11 +173,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = "users.MyUser"
 
-# CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",
-       # Add the origin of your frontend
-]
+
 # jwt
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meals by Date</title>
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <style>
         /* Basic styling */
         body {
@@ -63,6 +62,7 @@
 <script>
     host_front="http://127.0.0.1:5500/frontend/"
     host_back="http://127.0.0.1:8000/"
+    // host_back='https://food-tracker-django.onrender.com'
     function refreshToken() {
     const refresh_token = localStorage.getItem('refresh_token');
     

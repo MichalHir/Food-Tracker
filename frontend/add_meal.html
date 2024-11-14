@@ -28,6 +28,7 @@
     <script>
         host_front="http://127.0.0.1:5500/frontend/"
         host_back="http://127.0.0.1:8000/"
+        // host_back='https://food-tracker-django.onrender.com'
         function isTokenExpired(token) {
             if (!token) return true;
             const payload = JSON.parse(atob(token.split('.')[1]));
