@@ -18,5 +18,6 @@ urlpatterns = [
     path("api/food_types/", views.food_type_list, name="food_type_list"),  # Optional
     path("add_meals/", views.add_meal, name="add_meal"),
     path("api/users/", views.user_list, name="user_list"),
-    path("api/add_meals/", views.add_meal, name="add_meal")
+    path("api/add_meals/", views.add_meal, name="add_meal"),
+    path('', views.home_view,name="home"),  # Root URL now returns a basic response
 ]

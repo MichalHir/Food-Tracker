@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404, render
 from rest_framework.response import Response
@@ -244,3 +244,7 @@ def add_meal(request):
 def user_list(request):
     users = MyUser.objects.all().values("id", "username")
     return Response(list(users))
+
+# for render home page
+def home_view(request):
+    return HttpResponse("Welcome to the Food Tracker")
