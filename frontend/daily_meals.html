@@ -94,7 +94,6 @@
     mealsList.innerHTML = '';
     // Check if token exists and is valid
     if (!token || isTokenExpired(token)) {
-        console.log("Token is missing or expired. Redirecting to login.");
         window.location.href = `${host_front}login.html`;
         return;  // Stop function execution if token is invalid
     } 

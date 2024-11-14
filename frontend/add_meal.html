@@ -46,23 +46,24 @@
                     window.location.href = `${host_front}login.html`;
                 });
         }
+        function redirect_if_token_expired(token){
+                    if (!token || isTokenExpired(token)) {
+                        window.location.href = `${host_front}login.html`;
+                        return;
+                }}
 
         function getUserIdFromToken() {
+            
             const token = localStorage.getItem('access_token');
-            if (!token || isTokenExpired(token)) {
-                window.location.href = `${host_front}login.html`;
-                return null;
-            }
+            if (redirect_if_token_expired(token)) return;
             const payload = JSON.parse(atob(token.split('.')[1]));
             return payload.user_id || payload.id;
         }
-
+        
         async function populateOptions() {
             const token = localStorage.getItem('access_token');
-            if (!token || isTokenExpired(token)) {
-                window.location.href = `${host_front}login.html`;
-                return;
-            }
+            if (redirect_if_token_expired(token)) return;
+
             try {
                 const foodsResponse = await axios.get(`${host_back}api/foods/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
