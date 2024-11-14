@@ -78,7 +78,6 @@
         errorMessage.textContent = "Please enter both email and password.";
         return; // Stop the function if validation fails
     }
-
     axios.post('http://127.0.0.1:8000/api/login/', { email: email, password: password })
         .then(response => {
             // Store the JWT tokens
