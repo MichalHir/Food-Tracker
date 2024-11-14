@@ -65,7 +65,8 @@
 </div>
 
 <script>
-
+    host_front="http://127.0.0.1:5500/frontend/"
+    host_back="http://127.0.0.1:8000/"
     function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
@@ -78,14 +79,15 @@
         errorMessage.textContent = "Please enter both email and password.";
         return; // Stop the function if validation fails
     }
-    axios.post('http://127.0.0.1:8000/api/login/', { email: email, password: password })
+    
+    axios.post(`${host_back}api/login/`, { email: email, password: password })
         .then(response => {
             // Store the JWT tokens
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
 
             // Redirect to another page
-            window.location.href = "http://127.0.0.1:5500/frontend/daily_meals.html";
+            window.location.href = `${host_front}daily_meals.html`;
         })
         .catch(error => {
             console.error("Error logging in:", error);

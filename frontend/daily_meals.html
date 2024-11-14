@@ -61,10 +61,12 @@
 </div>
 <button type="button" id="addMealButton">Add A Meal</button>
 <script>
+    host_front="http://127.0.0.1:5500/frontend/"
+    host_back="http://127.0.0.1:8000/"
     function refreshToken() {
     const refresh_token = localStorage.getItem('refresh_token');
     
-    return axios.post('http://127.0.0.1:8000/api/token/refresh/', { refresh: refresh_token })
+    return axios.post(`${host_back}api/token/refresh/`, { refresh: refresh_token })
         .then(response => {
             // Update the access token in localStorage
             localStorage.setItem('access_token', response.data.access);
@@ -73,7 +75,7 @@
         .catch(error => {
             console.error("Error refreshing token:", error);
             // If the refresh token has expired, redirect to login
-            window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+            window.location.href = `${host_front}login.html`;
         });
 }
     function isTokenExpired(token) {
@@ -93,11 +95,11 @@
     // Check if token exists and is valid
     if (!token || isTokenExpired(token)) {
         console.log("Token is missing or expired. Redirecting to login.");
-        window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+        window.location.href = `${host_front}login.html`;
         return;  // Stop function execution if token is invalid
     } 
     // Fetch meals from backend for the selected date
-    axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`, {
+    axios.get(`${host_back}api/meals_by_date/?date=${selectedDate}`, {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     
@@ -127,7 +129,7 @@
         .catch(error => {
         if (error.response && error.response.status === 401) {
             // Handle token expiration or unauthorized access, possibly redirect to login
-            window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+            window.location.href = `${host_front}login.html`;
         } else {
             console.error("Error fetching meals:", error);
             mealsList.innerHTML = '<p>There was an error fetching meals.</p>';
@@ -135,12 +137,12 @@
         });
     }
     document.getElementById('addMealButton').addEventListener('click', function() {
-    window.location.href = 'http://127.0.0.1:5500/frontend/add_meal.html';
+    window.location.href = `${host_front}add_meal.html`;
 });
 
 // Function to handle the deletion of a meal
 function deleteMeal(mealId, selectedDate, token) {
-    axios.delete(`http://127.0.0.1:8000/api/delete_meals/${mealId}/`, {
+    axios.delete(`${host_back}api/delete_meals/${mealId}/`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -150,7 +152,7 @@ function deleteMeal(mealId, selectedDate, token) {
     .then(response => {
         if (response.ok) {
             // If the delete is successful, refresh the list of meals for the selected date
-            axios.get(`http://127.0.0.1:8000/api/meals_by_date/?date=${selectedDate}`, {
+            axios.get(`${host_back}api/meals_by_date/?date=${selectedDate}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(response => 

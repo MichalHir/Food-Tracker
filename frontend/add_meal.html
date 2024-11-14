@@ -26,6 +26,8 @@
     </form>
 
     <script>
+        host_front="http://127.0.0.1:5500/frontend/"
+        host_back="http://127.0.0.1:8000/"
         function isTokenExpired(token) {
             if (!token) return true;
             const payload = JSON.parse(atob(token.split('.')[1]));
@@ -35,20 +37,20 @@
 
         async function refreshToken() {
             const refresh_token = localStorage.getItem('refresh_token');
-            return axios.post('http://127.0.0.1:8000/api/token/refresh/', { refresh: refresh_token })
+            return axios.post(`${host_back}api/token/refresh/`, { refresh: refresh_token })
                 .then(response => {
                     localStorage.setItem('access_token', response.data.access);
                     return response.data.access;
                 })
                 .catch(error => {
-                    window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+                    window.location.href = `${host_front}login.html`;
                 });
         }
 
         function getUserIdFromToken() {
             const token = localStorage.getItem('access_token');
             if (!token || isTokenExpired(token)) {
-                window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+                window.location.href = `${host_front}login.html`;
                 return null;
             }
             const payload = JSON.parse(atob(token.split('.')[1]));
@@ -58,11 +60,11 @@
         async function populateOptions() {
             const token = localStorage.getItem('access_token');
             if (!token || isTokenExpired(token)) {
-                window.location.href = "http://127.0.0.1:5500/frontend/login.html";
+                window.location.href = `${host_front}login.html`;
                 return;
             }
             try {
-                const foodsResponse = await axios.get('http://127.0.0.1:8000/api/foods/', {
+                const foodsResponse = await axios.get(`${host_back}api/foods/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const foodsSelect = document.getElementById('foods');
@@ -100,7 +102,7 @@
             const token = localStorage.getItem('access_token');
             
             try {
-                await axios.post('http://127.0.0.1:8000/api/add_meals/', mealData, {
+                await axios.post(`${host_back}api/add_meals/`, mealData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -119,7 +121,7 @@
         }
 
         document.getElementById('backButton').addEventListener('click', function() {
-            window.location.href = 'http://127.0.0.1:5500/frontend/daily_meals.html';
+            window.location.href = `${host_front}daily_meals.html`;
         });
     </script>
 </body>
