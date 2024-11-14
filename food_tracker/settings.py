@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['food-tracker-django.onrender.com']
 
 # Application definition
 
@@ -150,7 +150,8 @@ AUTH_USER_MODEL = "users.MyUser"
 
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-   '*'  # Add the origin of your frontend
+    "http://127.0.0.1:5500",
+       # Add the origin of your frontend
 ]
 # jwt
 REST_FRAMEWORK = {
