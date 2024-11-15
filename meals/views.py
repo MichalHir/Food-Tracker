@@ -246,5 +246,5 @@ def user_list(request):
     return Response(list(users))
 
 # for render home page
-# def home_view(request):
-#     return HttpResponse("Welcome to the Food Tracker")
+def home_view(request):
+    return render(request, 'daily_meals.html')
